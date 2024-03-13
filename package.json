@@ -1,0 +1,12 @@
+{
+	"scripts": {
+		"build": "tsc && esbuild --bundle --minify --sourcemap ./src/imagedb.ts --outfile=dist/main.js --format=esm"
+	},
+	"devDependencies": {
+		"@typescript-eslint/parser": "^7.1.0",
+		"esbuild": "^0.20.1",
+		"eslint": "^8.57.0",
+		"eslint-config-google": "^0.14.0",
+		"typescript": "^5.3.3"
+	}
+}

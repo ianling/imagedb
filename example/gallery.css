@@ -1,0 +1,24 @@
+#gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 200px);
+}
+
+.image-wrapper {
+    margin: 25px;
+}
+
+.image-wrapper .image {
+    border: 1px solid black;
+}
+
+.image-wrapper .title {
+    font-size: 16px;
+}
+
+.image-wrapper .description {
+    font-size: 12px;
+}
+
+.image-wrapper .creation-date {
+    font-style: italic;
+}
