@@ -16,27 +16,36 @@ export class ImageArray<T> extends Array {
     // ensure your DOM contains something with the
     appendToElementUsingTemplate(element: HTMLElement) {
         const template = document.querySelector<HTMLTemplateElement>("#image-template");
-        if (!template) throw new Error("no element #image-template ")
+        if (!template) throw new Error("no element #image-template");
 
         this.forEach((image: Image) => {
-            const clone = template.content.cloneNode(true) as HTMLElement;
+            const clone = template.cloneNode(true) as HTMLTemplateElement;
 
-            const imgElem = clone.querySelector<HTMLImageElement>(".image");
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.title}}", image.title);
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.description}}", image.description);
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.path}}", image.path);
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.pathURLEncoded}}", encodeURIComponent(image.path));
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.creationDate}}", image.creationDate);
+            // TODO: better way to display tags
+
+            const cloneDocumentFragment = clone.content;
+
+            const imgElem = cloneDocumentFragment.querySelector<HTMLImageElement>(".image");
             if (imgElem) imgElem.src = image.path;
 
-            const titleElem = clone.querySelector(".title");
+            const titleElem = cloneDocumentFragment.querySelector(".title");
             if (titleElem) titleElem.textContent = image.title;
 
-            const desciptionElem = clone.querySelector(".description");
+            const desciptionElem = cloneDocumentFragment.querySelector(".description");
             if (desciptionElem) desciptionElem.textContent = image.description;
 
-            const creationDateElem = clone.querySelector(".creation-date");
+            const creationDateElem = cloneDocumentFragment.querySelector(".creation-date");
             if (creationDateElem) creationDateElem.textContent = image.creationDate;
 
-            const tagsElem = clone.querySelector(".tags");
+            const tagsElem = cloneDocumentFragment.querySelector(".tags");
             if (tagsElem) tagsElem.textContent = image.tags.map((value) => `#${value}`).join(", ");
 
-            element.appendChild(clone);
+            element.appendChild(cloneDocumentFragment);
         });
     }
 }
