@@ -7,13 +7,43 @@ export interface Image {
 }
 
 export class ImageArray<T> extends Array {
+    _imagesPerPage: number;
+
     constructor(...images: T[]) {
         super();
         this.push(...images);
         Object.setPrototypeOf(this, Object.create(ImageArray.prototype));
+
+        this._imagesPerPage = 10;
     }
 
-    // ensure your DOM contains something with the
+    // Logical AND of tags
+    queryTags(tags: string[]): ImageArray<T> {
+        const filtered = this.filter((image) =>
+            tags.every((tag) =>
+                image.tags.indexOf(tag) !== -1
+            )
+        );
+
+        return new ImageArray<Image>(...filtered);
+    }
+
+    setImagesPerPage(n: number): ImageArray<T> {
+        this._imagesPerPage = n;
+        return this;
+    }
+
+    // Divides the array into pages, returns an ImageArray containing the images in the specified page.
+    getPage(currentPage: number): ImageArray<T> {
+        const startIndex = (currentPage - 1) * this._imagesPerPage;
+        const endIndex = currentPage * this._imagesPerPage;
+
+        return new ImageArray<Image>(...this.slice(startIndex, endIndex));
+    }
+
+    // Append all images in the ImageArray to the specified element
+    // using the first element with the ID `image-template` in the document as a template for each image.
+    // See the example directory for usage.
     appendToElementUsingTemplate(element: HTMLElement) {
         const template = document.querySelector<HTMLTemplateElement>("#image-template");
         if (!template) throw new Error("no element #image-template");

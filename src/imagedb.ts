@@ -23,15 +23,4 @@ export default class ImageDB {
     images(): ImageArray<Image> {
         return this._images;
     }
-
-    // Logical AND of tags
-    queryTags(tags: string[]): ImageArray<Image> {
-        const filtered = this._images.filter((image) =>
-            tags.every((tag) =>
-                image.tags.indexOf(tag) !== -1
-            )
-        );
-
-        return new ImageArray<Image>(...filtered);
-    }
 }
