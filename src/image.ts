@@ -33,6 +33,10 @@ export class ImageArray<T> extends Array {
         return this;
     }
 
+    maxPage(): number {
+        return Math.ceil(this.length / this._imagesPerPage);
+    }
+
     // Divides the array into pages, returns an ImageArray containing the images in the specified page.
     getPage(currentPage: number): ImageArray<T> {
         const startIndex = (currentPage - 1) * this._imagesPerPage;
