@@ -1,5 +1,6 @@
 export interface Image {
     path: string;
+    thumbnailPath: string;
     title: string;
     description: string;
     tags: string[];
@@ -58,6 +59,8 @@ export class ImageArray<T> extends Array {
             clone.innerHTML = clone.innerHTML.replaceAll("{{image.title}}", image.title);
             clone.innerHTML = clone.innerHTML.replaceAll("{{image.description}}", image.description);
             clone.innerHTML = clone.innerHTML.replaceAll("{{image.path}}", image.path);
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.thumbnailPath}}", image.thumbnailPath ? image.thumbnailPath : image.path);
+            clone.innerHTML = clone.innerHTML.replaceAll("{{image.thumbnailPathURLEncoded}}", encodeURIComponent(image.thumbnailPath ? image.thumbnailPath : image.path));
             clone.innerHTML = clone.innerHTML.replaceAll("{{image.pathURLEncoded}}", encodeURIComponent(image.path));
             clone.innerHTML = clone.innerHTML.replaceAll("{{image.creationDate}}", image.creationDate);
             // TODO: better way to display tags
@@ -66,6 +69,9 @@ export class ImageArray<T> extends Array {
 
             const imgElem = cloneDocumentFragment.querySelector<HTMLImageElement>(".image");
             if (imgElem) imgElem.src = image.path;
+
+            const thumbnailElem = cloneDocumentFragment.querySelector<HTMLImageElement>(".thumbnail");
+            if (thumbnailElem) thumbnailElem.src = image.thumbnailPath ? image.thumbnailPath : image.path;
 
             const titleElem = cloneDocumentFragment.querySelector(".title");
             if (titleElem) titleElem.textContent = image.title;
