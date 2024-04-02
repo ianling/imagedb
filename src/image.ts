@@ -46,6 +46,11 @@ export class ImageArray<T> extends Array {
         return new ImageArray<Image>(...this.slice(startIndex, endIndex));
     }
 
+    // firstN returns the first n images in the ImageArray.
+    firstN(n: number): ImageArray<T> {
+        return new ImageArray<Image>(...this.slice(0, n));
+    }
+
     // Append all images in the ImageArray to the specified element
     // using the first element with the ID `image-template` in the document as a template for each image.
     // See the example directory for usage.
