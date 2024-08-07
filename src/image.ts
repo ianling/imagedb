@@ -9,6 +9,7 @@ export interface Image {
 
 export class ImageArray<T> extends Array {
     _imagesPerPage: number;
+    _imagesPerPageExplicit: number[]; // allows explicitly defining the number of images to display on each page
 
     constructor(...images: T[]) {
         super();
@@ -16,6 +17,7 @@ export class ImageArray<T> extends Array {
         Object.setPrototypeOf(this, Object.create(ImageArray.prototype));
 
         this._imagesPerPage = 10;
+        this._imagesPerPageExplicit = [];
     }
 
     // Logical AND of tags
@@ -42,14 +44,43 @@ export class ImageArray<T> extends Array {
         return this;
     }
 
+    setImagesPerPageExplicit(...imagesPerPage: number[]): ImageArray<T> {
+        this._imagesPerPageExplicit = imagesPerPage;
+        return this;
+    }
+
     maxPage(): number {
-        return Math.ceil(this.length / this._imagesPerPage);
+        let imagesUnaccountedFor = this.length;
+        this._imagesPerPageExplicit.forEach((numImagesOnPage) => imagesUnaccountedFor -= numImagesOnPage);
+        return this._imagesPerPageExplicit.length + Math.ceil(imagesUnaccountedFor / this._imagesPerPage);
     }
 
     // Divides the array into pages, returns an ImageArray containing the images in the specified page.
     getPage(currentPage: number): ImageArray<T> {
-        const startIndex = (currentPage - 1) * this._imagesPerPage;
-        const endIndex = currentPage * this._imagesPerPage;
+        let startIndex = 0;
+        let endIndex = 0;
+
+        // default to using _imagesPerPage if the explicit version is not specified
+        if (this._imagesPerPageExplicit.length == 0) {
+            startIndex = (currentPage - 1) * this._imagesPerPage;
+            endIndex = currentPage * this._imagesPerPage;
+        } else if (currentPage > this._imagesPerPageExplicit.length) {
+            // explicit numbers of images are specified, however the user has requested a page beyond what is explicitly defined
+            let imagesUnaccountedFor = this.length;
+            this._imagesPerPageExplicit.forEach((num) => imagesUnaccountedFor -= num);
+            startIndex = this.length - imagesUnaccountedFor;
+            endIndex = startIndex + this._imagesPerPage;
+        } else {
+            // the user has requested a page with an image count that is explicitly defined
+            for (let ii = 0; ii < this._imagesPerPageExplicit.length; ii++) {
+                if (ii === currentPage - 1) {
+                    endIndex = startIndex + this._imagesPerPageExplicit[ii];
+                    break;
+                }
+
+                startIndex += this._imagesPerPageExplicit[ii];
+            }
+        }
 
         return new ImageArray<Image>(...this.slice(startIndex, endIndex));
     }
