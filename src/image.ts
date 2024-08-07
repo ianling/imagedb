@@ -20,9 +20,17 @@ export class ImageArray<T> extends Array {
 
     // Logical AND of tags
     queryTags(tags: string[]): ImageArray<T> {
-        const filtered = this.filter((image) =>
-            tags.every((tag) =>
-                image.tags.indexOf(tag) !== -1
+        const filtered = this.filter((image: Image) =>
+            tags.every((tag) => {
+                    let tagParts = tag.split(":");
+                    if (tagParts.length > 1) {
+                        // we're searching for a set or some other meta-tag, we need to ignore the third chunk if it exists
+                        tag = tagParts.slice(0, 2).join(":");
+                        return image.tags.some((imageTag) => imageTag.split(":").slice(0, 2).join(":") === tag);
+                    }
+
+                    return image.tags.indexOf(tag) !== -1;
+                }
             )
         );
 
