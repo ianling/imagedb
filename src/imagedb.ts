@@ -2,6 +2,7 @@ import {Image, ImageArray} from "./image";
 
 export default class ImageDB {
     private _images = new ImageArray<Image>();
+    private _tagCounts = new Map<string, number>();
 
     async load(path: string) {
         let prefix = path.split('/').slice(0, -1).join('/');
@@ -14,11 +15,14 @@ export default class ImageDB {
 
         const images: Image[] = await response.json();
 
-        // apply path prefix to each image
-        images.forEach((_elem, index, array) => {
+        images.forEach((image, index, array) => {
+            // apply path prefix to each image
             array[index].path = `${prefix}${array[index].path}`;
             array[index].thumbnailPath = array[index].thumbnailPath ? `${prefix}${array[index].thumbnailPath}` : "";
-        })
+
+            // keep track of counts for each tag
+            image.tags?.forEach((tag) => this._tagCounts.set(tag, (this._tagCounts.get(tag) ?? 0) + 1));
+        });
 
         this._images.push(...images)
     }
@@ -42,5 +46,9 @@ export default class ImageDB {
 
     images(): ImageArray<Image> {
         return this._images;
+    }
+
+    tagCounts(): Map<string, number> {
+        return this._tagCounts;
     }
 }
