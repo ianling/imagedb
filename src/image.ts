@@ -138,4 +138,15 @@ export class ImageArray<T> extends Array {
             element.appendChild(cloneDocumentFragment);
         });
     }
+
+    tagCounts(): Map<string, number> {
+        const tagCounts = new Map<string, number>();
+
+        this.forEach((image: Image) => {
+            // keep track of counts for each tag
+            image.tags?.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1));
+        });
+
+        return tagCounts;
+    }
 }
