@@ -133,7 +133,7 @@ export class ImageArray<T> extends Array {
             if (creationDateElem) creationDateElem.textContent = image.creationDate;
 
             const tagsElem = cloneDocumentFragment.querySelector(".tags");
-            if (tagsElem) tagsElem.textContent = image.tags.map((value) => `#${value}`).join(", ");
+            if (tagsElem) tagsElem.textContent = image.tags.map((value) => `#${cleanTag(value)}`).join(", ");
 
             element.appendChild(cloneDocumentFragment);
         });
@@ -144,9 +144,23 @@ export class ImageArray<T> extends Array {
 
         this.forEach((image: Image) => {
             // keep track of counts for each tag
-            image.tags?.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1));
+            image.tags?.forEach((tag) => {
+                tag = cleanTag(tag);
+                tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)
+            });
         });
 
         return tagCounts;
     }
+}
+
+// strips last chunk of metadata off of the given tag.
+// examples:
+//  - set:set name:3  -> set:set name
+//  - set:set name    -> set:set name
+//  - doodles         -> doodles
+function cleanTag(tag: string): string {
+    const tagParts = tag.split(":");
+    if(tagParts.length < 3) return tag;
+    return tagParts.slice(0, 2).join(":")
 }
