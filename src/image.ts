@@ -22,7 +22,7 @@ export class ImageArray<T> extends Array {
 
     // Logical AND of tags
     queryTags(tags: string[]): ImageArray<T> {
-        const filtered = this.filter((image: Image) =>
+        const filtered: Image[] = this.filter((image: Image) =>
             tags.every((tag) => {
                     let tagParts = tag.split(":");
                     if (tagParts.length > 1) {
@@ -35,6 +35,12 @@ export class ImageArray<T> extends Array {
                 }
             )
         );
+
+        // prevent weird behavior I don't understand where this function can return [0]
+        // @ts-ignore
+        if(filtered.length === 1 && filtered[0] === 0) {
+            filtered.pop();
+        }
 
         return new ImageArray<Image>(...filtered);
     }
@@ -52,7 +58,7 @@ export class ImageArray<T> extends Array {
     maxPage(): number {
         let imagesUnaccountedFor = this.length;
         this._imagesPerPageExplicit.forEach((numImagesOnPage) => imagesUnaccountedFor -= numImagesOnPage);
-        return this._imagesPerPageExplicit.length + Math.ceil(imagesUnaccountedFor / this._imagesPerPage);
+        return Math.max(1, this._imagesPerPageExplicit.length + Math.ceil(imagesUnaccountedFor / this._imagesPerPage));
     }
 
     // Divides the array into pages, returns an ImageArray containing the images in the specified page.
