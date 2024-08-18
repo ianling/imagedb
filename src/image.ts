@@ -9,7 +9,7 @@ export interface Image {
 
 export class ImageArray<T> extends Array {
     _imagesPerPage: number;
-    _imagesPerPageExplicit: number[]; // allows explicitly defining the number of images to display on each page
+    _imagesPerPageExplicit: number[];
 
     constructor(...images: T[]) {
         super();
@@ -20,7 +20,8 @@ export class ImageArray<T> extends Array {
         this._imagesPerPageExplicit = [];
     }
 
-    // Logical AND of tags
+    // Performs a logical AND of given tags. Any images that do not have all the given tags are filtered out of the array.
+    // Returns a new ImageArray containing the images that remain.
     queryTags(tags: string[]): ImageArray<T> {
         const filtered: Image[] = this.filter((image: Image) =>
             tags.every((tag) => {
@@ -36,7 +37,7 @@ export class ImageArray<T> extends Array {
             )
         );
 
-        // prevent weird behavior I don't understand where this function can return [0]
+        // prevent weird behavior I don't understand where this function can literally return [0]
         // @ts-ignore
         if(filtered.length === 1 && filtered[0] === 0) {
             filtered.pop();
@@ -45,16 +46,24 @@ export class ImageArray<T> extends Array {
         return new ImageArray<Image>(...filtered);
     }
 
+    // sets the number of images per page.
     setImagesPerPage(n: number): ImageArray<T> {
         this._imagesPerPage = n;
         return this;
     }
 
+    // Sets the number of images to show per page, giving explicit control over the number of images shown on each individual page.
+    // Takes zero or more numbers, the first number corresponds to the number of images to show on the first page,
+    // the second to the second page, and so on.
+    // If this function is called without any numbers, pagination uses the value set using setImagesPerPage.
+    // Pages specified beyond what is actually reachable have no effect (those pages will remain empty).
     setImagesPerPageExplicit(...imagesPerPage: number[]): ImageArray<T> {
         this._imagesPerPageExplicit = imagesPerPage;
         return this;
     }
 
+    // returns the maximum page number.
+    // Use setImagesPerPage and setImagesPerPageExplicit to set the number of images per page.
     maxPage(): number {
         let imagesUnaccountedFor = this.length;
         this._imagesPerPageExplicit.forEach((numImagesOnPage) => imagesUnaccountedFor -= numImagesOnPage);
@@ -62,6 +71,7 @@ export class ImageArray<T> extends Array {
     }
 
     // Divides the array into pages, returns an ImageArray containing the images in the specified page.
+    // Use setImagesPerPage and setImagesPerPageExplicit to set the number of images per page.
     getPage(currentPage: number): ImageArray<T> {
         let startIndex = 0;
         let endIndex = 0;
@@ -91,12 +101,12 @@ export class ImageArray<T> extends Array {
         return new ImageArray<Image>(...this.slice(startIndex, endIndex));
     }
 
-    // firstN returns the first n images in the ImageArray.
+    // Returns the first n images in the ImageArray.
     firstN(n: number): ImageArray<T> {
         return new ImageArray<Image>(...this.slice(0, n));
     }
 
-    // Append all images in the ImageArray to the specified element
+    // Appends all images in the ImageArray to the specified element
     // using the first element with the ID `image-template` in the document as a template for each image.
     // See the example directory for usage.
     appendToElementUsingTemplate(element: HTMLElement) {
@@ -139,11 +149,11 @@ export class ImageArray<T> extends Array {
         });
     }
 
+    // Returns a map containing the number of occurrences of each tag in the ImageArray, in the form {"tag name": count}
     tagCounts(): Map<string, number> {
         const tagCounts = new Map<string, number>();
 
         this.forEach((image: Image) => {
-            // keep track of counts for each tag
             image.tags?.forEach((tag) => {
                 tag = cleanTag(tag);
                 tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)

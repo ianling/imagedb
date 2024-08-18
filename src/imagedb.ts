@@ -3,6 +3,8 @@ import {Image, ImageArray} from "./image";
 export default class ImageDB {
     private _images = new ImageArray<Image>();
 
+    // Loads a single array of images from the given path.
+    // This function does not download the images, it only downloads the JSON from the given path.
     async load(path: string) {
         let prefix = path.split('/').slice(0, -1).join('/');
         prefix += prefix ? "/" : "";
@@ -23,6 +25,8 @@ export default class ImageDB {
         this._images.push(...images)
     }
 
+    // Loads an array of paths to additional arrays and then calls load() on each path.
+    // Example: loadDBsFromList("dbs.json"), where dbs.json contains ["db1.json", "db2.json", "db3.json"]
     async loadDBsFromList(listPath: string) {
         let dbPathPrefix = listPath.split('/').slice(0, -1).join('/');
         dbPathPrefix += dbPathPrefix ? "/" : "";
@@ -40,6 +44,7 @@ export default class ImageDB {
         await Promise.all(promises);
     }
 
+    // Returns an ImageArray of all the images loaded using load and loadDBsFromList.
     images(): ImageArray<Image> {
         return this._images;
     }
