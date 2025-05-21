@@ -46,6 +46,27 @@ export class ImageArray<T> extends Array {
         return new ImageArray<Image>(...filtered);
     }
 
+    query(qq: string): ImageArray<T> {
+        qq = qq.toLowerCase();
+        const searchTerms = qq.split(" ");
+
+        const filtered: Image[] = this.filter((image: Image) => searchTerms.every((qq) =>
+            image.creationDate.toLowerCase().includes(qq) ||
+            image.description.toLowerCase().includes(qq) ||
+            image.path.toLowerCase().includes(qq) ||
+            image.tags.some((tag) => tag.toLowerCase().includes(qq)) ||
+            image.title.toLowerCase().includes(qq)
+        ));
+
+        // prevent weird behavior I don't understand where this function can literally return [0]
+        // @ts-ignore
+        if(filtered.length === 1 && filtered[0] === 0) {
+            filtered.pop();
+        }
+
+        return new ImageArray<Image>(...filtered);
+    }
+
     // sets the number of images per page.
     setImagesPerPage(n: number): ImageArray<T> {
         this._imagesPerPage = n;
